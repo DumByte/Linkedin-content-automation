@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: linkedin-content-dashboard
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python dashboard/app.py
+    envVars:
+      - key: DATABASE_PATH
+        value: /data/content_history.db
+      - key: PORT
+        value: "10000"
+      - key: ANTHROPIC_API_KEY
+        sync: false  # Set manually in Render dashboard
+    disk:
+      name: content-data
+      mountPath: /data
+      sizeGB: 1
+    plan: free
+    autoDeploy: true

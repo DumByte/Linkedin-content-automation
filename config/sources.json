@@ -1,0 +1,46 @@
+{
+  "twitter_accounts": [
+    {"handle": "RobMorgan", "name": "Rob Morgan (Payoneer VP)", "category": "fintech", "priority": 7},
+    {"handle": "TonyMcLaugh662", "name": "Tony McLaughlin (Ubyx CEO)", "category": "stablecoin", "priority": 8},
+    {"handle": "adamludwin", "name": "Adam Ludwin (Interop Labs)", "category": "stablecoin", "priority": 7},
+    {"handle": "jerallaire", "name": "Jeremy Allaire (Circle CEO)", "category": "stablecoin", "priority": 9},
+    {"handle": "caborey", "name": "Christina Borey (JPM Onyx)", "category": "banking", "priority": 8},
+    {"handle": "EmilyParkerNYT", "name": "Emily Parker (Crypto/Fintech)", "category": "fintech", "priority": 6},
+    {"handle": "lex_node", "name": "Lex Sokolin (Generative Ventures)", "category": "ai", "priority": 8},
+    {"handle": "balaboreys", "name": "Balaji Srinivasan", "category": "fintech", "priority": 7},
+    {"handle": "AriannaSimpson", "name": "Arianna Simpson (a16z)", "category": "fintech", "priority": 7},
+    {"handle": "RyanSAdams", "name": "Ryan Sean Adams (Bankless)", "category": "fintech", "priority": 6},
+    {"handle": "saborey", "name": "Simon Taylor (11:FS)", "category": "fintech", "priority": 8},
+    {"handle": "mattharris", "name": "Matt Harris (Bain Capital)", "category": "fintech", "priority": 7},
+    {"handle": "AngelaStrange", "name": "Angela Strange (a16z Fintech)", "category": "fintech", "priority": 7},
+    {"handle": "nikmilanovic", "name": "Nik Milanovic (This Week in Fintech)", "category": "fintech", "priority": 8},
+    {"handle": "jpwarmenhoven", "name": "JP Warmenhoven (Payments)", "category": "payments", "priority": 6}
+  ],
+  "newsletters": [
+    {"name": "Fintech Brainfood", "url": "https://brainfood.substack.com/feed", "category": "fintech", "priority": 9},
+    {"name": "This Week in Fintech", "url": "https://thisweekinfintech.substack.com/feed", "category": "fintech", "priority": 8},
+    {"name": "The Fintech Blueprint", "url": "https://lex.substack.com/feed", "category": "fintech", "priority": 8},
+    {"name": "Net Interest", "url": "https://netinterest.substack.com/feed", "category": "fintech", "priority": 8},
+    {"name": "The Generalist", "url": "https://thegeneralist.substack.com/feed", "category": "fintech", "priority": 6},
+    {"name": "Stratechery", "url": "https://stratechery.com/feed/", "category": "ai", "priority": 8},
+    {"name": "Not Boring", "url": "https://notboring.substack.com/feed", "category": "fintech", "priority": 7},
+    {"name": "The Diff", "url": "https://thediff.substack.com/feed", "category": "fintech", "priority": 7},
+    {"name": "Fintech Nexus News", "url": "https://www.fintechnexus.com/feed/", "category": "fintech", "priority": 6},
+    {"name": "Payments Dive", "url": "https://www.paymentsdive.com/feeds/news/", "category": "payments", "priority": 7},
+    {"name": "Banking Dive", "url": "https://www.bankingdive.com/feeds/news/", "category": "banking", "priority": 7},
+    {"name": "Fintech Business Weekly", "url": "https://fintechbusinessweekly.substack.com/feed", "category": "fintech", "priority": 7}
+  ],
+  "blogs": [
+    {"name": "Gwern.net", "url": "https://gwern.net/feed", "category": "ai", "priority": 6},
+    {"name": "Marginal Revolution", "url": "https://marginalrevolution.com/feed", "category": "fintech", "priority": 6},
+    {"name": "Federal Reserve Blog", "url": "https://www.federalreserve.gov/feeds/press_all.xml", "category": "banking", "priority": 8},
+    {"name": "NBER New Papers", "url": "https://www.nber.org/rss/new.xml", "category": "fintech", "priority": 5}
+  ],
+  "news": [
+    {"name": "Finextra", "url": "https://www.finextra.com/rss/headlines.aspx", "category": "fintech", "priority": 7},
+    {"name": "The Block", "url": "https://www.theblock.co/rss.xml", "category": "stablecoin", "priority": 7},
+    {"name": "CoinDesk", "url": "https://www.coindesk.com/arc/outboundfeeds/rss/", "category": "stablecoin", "priority": 6},
+    {"name": "PYMNTS", "url": "https://www.pymnts.com/feed/", "category": "payments", "priority": 7},
+    {"name": "Tearsheet", "url": "https://tearsheet.co/feed/", "category": "fintech", "priority": 6}
+  ]
+}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Post History — LinkedIn Content{% endblock %}
+
+{% block content %}
+<h1>Post History</h1>
+
+<div class="filter-bar">
+    <a href="/history?status=all" class="btn btn-filter {% if current_status == 'all' %}active{% endif %}">All</a>
+    <a href="/history?status=draft" class="btn btn-filter {% if current_status == 'draft' %}active{% endif %}">Drafts</a>
+    <a href="/history?status=approved" class="btn btn-filter {% if current_status == 'approved' %}active{% endif %}">Approved</a>
+    <a href="/history?status=posted" class="btn btn-filter {% if current_status == 'posted' %}active{% endif %}">Posted</a>
+    <a href="/history?status=rejected" class="btn btn-filter {% if current_status == 'rejected' %}active{% endif %}">Rejected</a>
+</div>
+
+{% if posts %}
+<div class="post-list">
+    {% for post in posts %}
+    <div class="post-card">
+        <div class="post-header">
+            <span class="badge badge-status-{{ post.status }}">{{ post.status }}</span>
+            <span class="badge badge-{{ post.category or 'general' }}">{{ post.category or 'general' }}</span>
+            <span class="post-date">{{ post.generated_at[:16] }}</span>
+        </div>
+
+        <h3>{{ post.source_title or 'Untitled' }}</h3>
+        <p class="post-meta">
+            by {{ post.author or post.source_name }}
+            {% if post.source_url %}
+                — <a href="{{ post.source_url }}" target="_blank" rel="noopener">source</a>
+            {% endif %}
+        </p>
+
+        <details>
+            <summary>View Post</summary>
+            <pre class="post-text">{{ post.full_post }}</pre>
+            <div class="post-actions">
+                <button class="btn btn-copy" onclick="copyPost(this)" data-text="{{ post.full_post | e }}">
+                    Copy
+                </button>
+                {% if post.status != 'posted' %}
+                <button class="btn btn-approve" onclick="updateStatus({{ post.id }}, 'approved')">Approve</button>
+                <button class="btn btn-small" onclick="updateStatus({{ post.id }}, 'posted')">Mark Posted</button>
+                {% endif %}
+            </div>
+        </details>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <p>No posts found with status "{{ current_status }}".</p>
+</div>
+{% endif %}
+{% endblock %}

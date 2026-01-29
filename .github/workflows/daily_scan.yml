@@ -1,0 +1,44 @@
+name: Daily Content Scan
+
+on:
+  schedule:
+    - cron: '0 8 * * *'  # 8AM UTC daily
+  workflow_dispatch:       # Allow manual triggers
+
+jobs:
+  scan-and-generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download previous database
+        uses: actions/download-artifact@v4
+        with:
+          name: content-database
+          path: data/
+        continue-on-error: true  # First run won't have artifact
+
+      - name: Run daily scan
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DATABASE_PATH: data/content_history.db
+        run: python src/main.py
+
+      - name: Upload database artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: content-database
+          path: data/content_history.db
+          retention-days: 90
+          overwrite: true

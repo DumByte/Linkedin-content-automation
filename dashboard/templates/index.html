@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Today's Drafts — LinkedIn Content{% endblock %}
+
+{% block content %}
+<h1>Today's Drafts</h1>
+
+{% if drafts %}
+<div class="draft-list">
+    {% for draft in drafts %}
+    <div class="draft-card" data-post-id="{{ draft.id }}">
+        <div class="draft-header">
+            <span class="badge badge-{{ draft.category or 'general' }}">{{ draft.category or 'general' }}</span>
+            <span class="draft-date">{{ draft.generated_at[:16] }}</span>
+        </div>
+
+        <h3 class="draft-source-title">{{ draft.source_title or 'Untitled' }}</h3>
+        <p class="draft-source-meta">
+            by {{ draft.author or draft.source_name }}
+            {% if draft.source_url %}
+                — <a href="{{ draft.source_url }}" target="_blank" rel="noopener">source</a>
+            {% endif %}
+        </p>
+
+        <div class="draft-post-content">
+            <pre class="post-text">{{ draft.full_post }}</pre>
+        </div>
+
+        <div class="draft-actions">
+            <button class="btn btn-copy" onclick="copyPost(this)" data-text="{{ draft.full_post | e }}">
+                Copy to Clipboard
+            </button>
+            <button class="btn btn-approve" onclick="updateStatus({{ draft.id }}, 'approved')">
+                Approve
+            </button>
+            <button class="btn btn-reject" onclick="updateStatus({{ draft.id }}, 'rejected')">
+                Reject
+            </button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <p>No drafts available yet. Run the scanner to generate new content.</p>
+    <code>python src/main.py</code>
+</div>
+{% endif %}
+{% endblock %}
