@@ -93,6 +93,22 @@ Quality check before returning:
 Return ONLY the post text."""
 
 
+BATCH_USER_PROMPT_TEMPLATE = """Generate {article_count} separate LinkedIn posts, one for each article below.
+
+For EACH post (150-200 words):
+1. Open with the most surprising/specific fact from the source (NOT setup/context)
+2. Explain why it matters using concrete examples or second-order implications
+3. Acknowledge what's uncertain or overhyped if applicable
+4. End with a non-obvious question, specific prediction, or "this matters if you're [specific role]"
+5. Mention author/source naturally, link at the end
+
+Separate each post with a line containing only "---POST_SEPARATOR---"
+
+{articles}
+
+Return ONLY the {article_count} posts separated by ---POST_SEPARATOR--- lines. No other text."""
+
+
 class ContentGenerator:
     """Generates LinkedIn post drafts using Claude API."""
 
@@ -154,7 +170,79 @@ class ContentGenerator:
             raise
 
     def generate_batch(self, content_items: list[dict]) -> list[dict]:
-        """Generate posts for multiple content items."""
+        """Generate posts for multiple content items in a single API call.
+
+        Falls back to individual calls if batch parsing fails.
+        """
+        if len(content_items) <= 1:
+            return self._generate_batch_individual(content_items)
+
+        try:
+            return self._generate_batch_combined(content_items)
+        except Exception as e:
+            logger.warning("Batch generation failed (%s), falling back to individual calls", e)
+            return self._generate_batch_individual(content_items)
+
+    def _generate_batch_combined(self, content_items: list[dict]) -> list[dict]:
+        """Generate all posts in a single API call."""
+        # Build combined prompt with all articles
+        article_sections = []
+        for i, item in enumerate(content_items, 1):
+            author = item.get("author") or item.get("source_name", "Unknown")
+            section = (
+                f"=== ARTICLE {i} ===\n"
+                f"Author: {author}\n"
+                f"Publication: {item.get('source_name', '')}\n"
+                f"Title: {item.get('title', '')}\n"
+                f"URL: {item.get('url', '')}\n"
+                f"Key content:\n{_truncate(item.get('content', ''), 2000)}\n"
+            )
+            article_sections.append(section)
+
+        combined_prompt = BATCH_USER_PROMPT_TEMPLATE.format(
+            article_count=len(content_items),
+            articles="\n".join(article_sections),
+        )
+
+        logger.info("Generating %d posts in single batch call", len(content_items))
+
+        response = self.client.messages.create(
+            model=self.model,
+            max_tokens=4096,
+            system=SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": combined_prompt}],
+        )
+
+        raw_text = response.content[0].text.strip()
+
+        # Parse the response into individual posts
+        posts = _parse_batch_response(raw_text, len(content_items))
+
+        if len(posts) != len(content_items):
+            raise ValueError(
+                f"Expected {len(content_items)} posts, got {len(posts)}"
+            )
+
+        results = []
+        for item, post_text in zip(content_items, posts):
+            post_text = _anti_cringe_filter(post_text)
+            author = item.get("author") or item.get("source_name", "")
+            source_summary = f"Source: {author} — {item.get('title', '')}"
+            if item.get("url"):
+                source_summary += f"\nLink: {item['url']}"
+
+            results.append({
+                "source_summary": source_summary,
+                "commentary": post_text,
+                "full_post": post_text,
+                "content_item": item,
+            })
+
+        logger.info("Batch generation successful: %d posts", len(results))
+        return results
+
+    def _generate_batch_individual(self, content_items: list[dict]) -> list[dict]:
+        """Generate posts individually (original approach, used as fallback)."""
         results = []
         for item in content_items:
             try:
@@ -164,6 +252,20 @@ class ContentGenerator:
             except Exception as e:
                 logger.error("Failed to generate post for '%s': %s", item.get("title", ""), e)
         return results
+
+
+def _parse_batch_response(raw_text: str, expected_count: int) -> list[str]:
+    """Parse a batch response into individual posts using the separator."""
+    separator = "---POST_SEPARATOR---"
+    if separator in raw_text:
+        posts = [p.strip() for p in raw_text.split(separator) if p.strip()]
+    else:
+        # Fallback: try splitting on common patterns
+        import re
+        posts = re.split(r'\n---+\n', raw_text)
+        posts = [p.strip() for p in posts if p.strip()]
+
+    return posts
 
 
 def _truncate(text: str, max_len: int) -> str:

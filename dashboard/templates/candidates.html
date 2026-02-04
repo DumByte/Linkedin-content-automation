@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Article Candidates — LinkedIn Content{% endblock %}
+
+{% block content %}
+<h1>Article Candidates</h1>
+<p class="section-description">Top-ranked articles from the last 5 days. Select articles and click Generate to create LinkedIn posts.</p>
+
+{% if candidates %}
+<div class="candidate-actions">
+    <div class="candidate-actions-left">
+        <button class="btn btn-small" onclick="toggleSelectAll(true)">Select All</button>
+        <button class="btn btn-small" onclick="toggleSelectAll(false)">Deselect All</button>
+    </div>
+    <button class="btn btn-generate" id="generateBtn" onclick="generateSelected()" disabled>
+        Generate Posts
+    </button>
+</div>
+
+<div class="candidate-list">
+    {% for c in candidates %}
+    <div class="candidate-card" data-candidate-id="{{ c.id }}" data-status="{{ c.status }}">
+        <div class="candidate-select">
+            {% if c.status == 'candidate' %}
+            <input type="checkbox" class="candidate-checkbox" data-candidate-id="{{ c.id }}" onchange="updateGenerateButton()">
+            {% endif %}
+        </div>
+        <div class="candidate-body">
+            <div class="candidate-header">
+                <span class="badge badge-{{ c.category or 'general' }}">{{ c.source_name or 'Unknown' }}</span>
+                {% if c.category %}
+                <span class="badge badge-{{ c.category }}">{{ c.category }}</span>
+                {% endif %}
+                <span class="candidate-score">Score: {{ "%.1f"|format(c.total_score) }}/100</span>
+                <span class="badge badge-status-{{ c.status }}">{{ c.status }}</span>
+            </div>
+
+            <h3 class="candidate-title">
+                {% if c.url %}
+                    <a href="{{ c.url }}" target="_blank" rel="noopener">{{ c.title or 'Untitled' }}</a>
+                {% else %}
+                    {{ c.title or 'Untitled' }}
+                {% endif %}
+            </h3>
+
+            <div class="score-breakdown">
+                <span class="score-chip" title="Recency (max 30)">Recency: {{ "%.1f"|format(c.recency_score) }}</span>
+                <span class="score-chip" title="Substance (max 25)">Substance: {{ "%.1f"|format(c.substance_score) }}</span>
+                <span class="score-chip" title="Authority (max 20)">Authority: {{ "%.1f"|format(c.authority_score) }}</span>
+                <span class="score-chip" title="Engagement (max 25)">Engagement: {{ "%.1f"|format(c.engagement_score) }}</span>
+            </div>
+
+            {% if c.published_at %}
+            <p class="candidate-meta">Published: {{ c.published_at }}</p>
+            {% endif %}
+
+            {% if c.error_message %}
+            <p class="candidate-error">Error: {{ c.error_message }}</p>
+            {% endif %}
+
+            {% if c.status == 'candidate' %}
+            <button class="btn btn-reject btn-small" onclick="rejectCandidate({{ c.id }})">Reject</button>
+            {% endif %}
+
+            {% if c.generated_post_text %}
+            <div class="generated-preview" id="preview-{{ c.id }}">
+                <div class="post-text" id="post-text-{{ c.id }}">{{ c.generated_post_text }}</div>
+                <button class="btn btn-copy btn-small" onclick="copyGeneratedPost({{ c.id }})">Copy to Clipboard</button>
+            </div>
+            {% else %}
+            <div class="generated-preview" id="preview-{{ c.id }}" style="display:none;">
+                <div class="post-text" id="post-text-{{ c.id }}"></div>
+                <button class="btn btn-copy btn-small" onclick="copyGeneratedPost({{ c.id }})">Copy to Clipboard</button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <p>No candidates available. Run the scanner first.</p>
+    <code>python src/main.py</code>
+</div>
+{% endif %}
+{% endblock %}

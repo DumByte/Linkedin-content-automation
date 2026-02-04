@@ -46,13 +46,31 @@ class BaseScanner(ABC):
         """
         ...
 
-    def scan_safe(self, source: dict) -> list[ScannedItem]:
-        """Scan with error handling — never raises."""
+    def scan_safe(self, source: dict) -> tuple[list[ScannedItem], dict | None]:
+        """Scan with error handling — never raises.
+
+        Returns:
+            Tuple of (items, failure_info). failure_info is None on success,
+            or a dict with keys: failure_type, error_message on failure.
+        """
         try:
-            return self.scan(source)
+            items = self.scan(source)
+            return items, None
+        except TimeoutError as e:
+            logger.error("Scanner %s timed out for %s: %s", self.__class__.__name__, source.get("url"), e)
+            return [], {"failure_type": "timeout", "error_message": str(e)}
         except Exception as e:
-            logger.error("Scanner %s failed for %s: %s", self.__class__.__name__, source.get("url"), e)
-            return []
+            error_type = type(e).__name__
+            # Classify the failure
+            err_str = str(e).lower()
+            if "timeout" in err_str or "timed out" in err_str:
+                failure_type = "timeout"
+            elif "http" in err_str or "status" in err_str or "404" in err_str or "403" in err_str:
+                failure_type = "http_error"
+            else:
+                failure_type = "parse_error"
+            logger.error("Scanner %s failed for %s: %s: %s", self.__class__.__name__, source.get("url"), error_type, e)
+            return [], {"failure_type": failure_type, "error_message": f"{error_type}: {e}"}
 
     @staticmethod
     def is_recent(published_at: Optional[str], max_days=180) -> bool:

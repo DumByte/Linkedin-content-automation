@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Rejected Articles — LinkedIn Content{% endblock %}
+
+{% block content %}
+<h1>Rejected Articles</h1>
+
+{% if user_rejected %}
+<h2 class="section-subtitle">User-Rejected Candidates</h2>
+<p class="section-description">Articles you explicitly rejected from the candidates view. These won't appear in future rankings.</p>
+<div class="rejected-list">
+    {% for article in user_rejected %}
+    <div class="rejected-card">
+        <div class="rejected-header">
+            <span class="badge badge-general">{{ article.source_name or 'Unknown' }}</span>
+            <span class="rejected-score">Rejected: {{ article.rejected_at[:16] if article.rejected_at else '' }}</span>
+        </div>
+
+        <h3 class="rejected-title">
+            {% if article.url %}
+                <a href="{{ article.url }}" target="_blank" rel="noopener">{{ article.title or 'Untitled' }}</a>
+            {% else %}
+                {{ article.title or 'Untitled' }}
+            {% endif %}
+        </h3>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<h2 class="section-subtitle">Score-Rejected Articles</h2>
+<p class="section-description">Articles that were scanned and scored but didn't make the top 20 cut.</p>
+
+{% if articles %}
+<div class="rejected-list">
+    {% for article in articles %}
+    <div class="rejected-card">
+        <div class="rejected-header">
+            <span class="badge badge-general">{{ article.source_name or 'Unknown' }}</span>
+            <span class="rejected-score">Score: {{ "%.1f"|format(article.total_score) }}/100</span>
+        </div>
+
+        <h3 class="rejected-title">
+            {% if article.url %}
+                <a href="{{ article.url }}" target="_blank" rel="noopener">{{ article.title or 'Untitled' }}</a>
+            {% else %}
+                {{ article.title or 'Untitled' }}
+            {% endif %}
+        </h3>
+
+        <div class="score-breakdown">
+            <span class="score-chip" title="Recency (max 30)">Recency: {{ "%.1f"|format(article.recency_score) }}</span>
+            <span class="score-chip" title="Substance (max 25)">Substance: {{ "%.1f"|format(article.substance_score) }}</span>
+            <span class="score-chip" title="Authority (max 20)">Authority: {{ "%.1f"|format(article.authority_score) }}</span>
+            <span class="score-chip" title="Engagement (max 25)">Engagement: {{ "%.1f"|format(article.engagement_score) }}</span>
+        </div>
+
+        <p class="rejection-reason">{{ article.rejection_reason }}</p>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <p>No score-rejected articles yet. Run the scanner to populate this data.</p>
+    <code>python src/main.py</code>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,4 +1,6 @@
 import logging
+import ssl
+import urllib.request
 from datetime import datetime
 
 import feedparser
@@ -6,6 +8,12 @@ import feedparser
 from .base_scanner import BaseScanner, ScannedItem
 
 logger = logging.getLogger(__name__)
+
+USER_AGENT = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/131.0.0.0 Safari/537.36"
+)
 
 
 class RSSScanner(BaseScanner):
@@ -15,15 +23,32 @@ class RSSScanner(BaseScanner):
         super().__init__(rate_limit_seconds=rate_limit_seconds)
         self.max_days = max_days
 
+    def _fetch_feed(self, url: str):
+        """Fetch and parse a feed, with SSL fallback for sites with cert issues."""
+        feed = feedparser.parse(url, agent=USER_AGENT)
+        if feed.bozo and not feed.entries:
+            exc = feed.bozo_exception
+            # If SSL error, retry with unverified context
+            if "CERTIFICATE_VERIFY_FAILED" in str(exc):
+                logger.info("Retrying %s with unverified SSL", url)
+                ctx = ssl.create_default_context()
+                ctx.check_hostname = False
+                ctx.verify_mode = ssl.CERT_NONE
+                handler = urllib.request.HTTPSHandler(context=ctx)
+                feed = feedparser.parse(url, agent=USER_AGENT, handlers=[handler])
+        return feed
+
     def scan(self, source: dict) -> list[ScannedItem]:
         self._rate_limit()
         url = source["url"]
         logger.info("Scanning RSS feed: %s (%s)", source.get("name", url), url)
 
-        feed = feedparser.parse(url)
+        feed = self._fetch_feed(url)
         if feed.bozo and not feed.entries:
-            logger.warning("Feed parse error for %s: %s", url, feed.bozo_exception)
-            return []
+            exc = feed.bozo_exception
+            logger.warning("Feed parse error for %s: %s", url, exc)
+            # Raise so scan_safe can classify it
+            raise RuntimeError(f"Feed parse error: {exc}")
 
         items = []
         for entry in feed.entries:

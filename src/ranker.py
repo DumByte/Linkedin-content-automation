@@ -12,8 +12,8 @@ logger = logging.getLogger(__name__)
 MAX_AGE_DAYS = 180  # 6 months
 
 
-def rank_content(items: list[dict], top_n: int = 3) -> list[dict]:
-    """Score and rank content items, returning the top N from different sources.
+def rank_content(items: list[dict], top_n: int = 20) -> list[dict]:
+    """Score and rank content items, returning the top N by score.
 
     Scoring factors:
     - Recency (exponential decay, max 6 months old)
@@ -22,7 +22,6 @@ def rank_content(items: list[dict], top_n: int = 3) -> list[dict]:
     - Engagement quality (links, mentions, specificity)
 
     Deduplicates by URL and content similarity before ranking.
-    Ensures each selected item comes from a different source.
     """
     if not items:
         return []
@@ -30,53 +29,63 @@ def rank_content(items: list[dict], top_n: int = 3) -> list[dict]:
     # Deduplicate
     items = _deduplicate(items)
 
-    # Score each item
+    # Score each item with full breakdown
     scored = []
     for item in items:
-        score = _compute_score(item)
-        if score > 0:  # Only include items with positive scores (valid dates)
-            scored.append({**item, "engagement_score": score})
+        breakdown = _compute_score_breakdown(item)
+        total = sum(breakdown.values())
+        if total > 0:
+            scored.append({
+                **item,
+                "engagement_score": total,
+                "score_breakdown": breakdown,
+            })
 
     # Sort by score descending
     scored.sort(key=lambda x: x["engagement_score"], reverse=True)
 
-    # Select top N ensuring source diversity (one item per source)
-    selected = []
-    seen_sources = set()
-    for item in scored:
-        source_id = item.get("source_id") or item.get("source_name", "")
-        if source_id in seen_sources:
-            continue
-        seen_sources.add(source_id)
-        selected.append(item)
-        if len(selected) >= top_n:
-            break
+    # Select top N by score (no source diversity filter)
+    selected = scored[:top_n]
+    rejected = [
+        {**item, "rejection_reason": "Outside top %d" % top_n}
+        for item in scored[top_n:]
+    ]
 
     logger.info(
-        "Ranked %d items, selected top %d from different sources (scores: %s)",
+        "Ranked %d items, selected top %d (scores: %s)",
         len(scored),
         len(selected),
         [f"{s['engagement_score']:.2f}" for s in selected],
     )
+
+    # Store rejected articles for dashboard visibility (module-level cache)
+    global _last_rejected
+    _last_rejected = rejected[:20]
+
     return selected
 
 
+# Module-level cache for rejected articles from the most recent ranking run
+_last_rejected: list[dict] = []
+
+
+def get_last_rejected() -> list[dict]:
+    """Return the top 20 rejected articles from the most recent ranking run."""
+    return _last_rejected
+
+
 def _compute_score(item: dict) -> float:
-    score = 0.0
+    return sum(_compute_score_breakdown(item).values())
 
-    # 1. Recency score (0-30 points, exponential decay)
-    score += _recency_score(item.get("published_at"))
 
-    # 2. Content substance (0-25 points)
-    score += _substance_score(item.get("content", ""), item.get("title", ""))
-
-    # 3. Source authority (0-20 points)
-    score += _authority_score(item.get("priority", 5))
-
-    # 4. Engagement quality (0-25 points)
-    score += _engagement_score(item.get("content", ""), item.get("title", ""))
-
-    return score
+def _compute_score_breakdown(item: dict) -> dict:
+    """Return individual score components as a dict."""
+    return {
+        "recency": _recency_score(item.get("published_at")),
+        "substance": _substance_score(item.get("content", ""), item.get("title", "")),
+        "authority": _authority_score(item.get("priority", 5)),
+        "engagement": _engagement_score(item.get("content", ""), item.get("title", "")),
+    }
 
 
 def _recency_score(published_at: str | None) -> float:

@@ -12,7 +12,10 @@
             <a href="/" class="nav-brand">LinkedIn Content</a>
             <div class="nav-links">
                 <a href="/" class="{% if request.path == '/' %}active{% endif %}">Drafts</a>
+                <a href="/candidates" class="{% if request.path == '/candidates' %}active{% endif %}">Candidates</a>
                 <a href="/history" class="{% if request.path == '/history' %}active{% endif %}">History</a>
+                <a href="/rejected" class="{% if request.path == '/rejected' %}active{% endif %}">Rejected</a>
+                <a href="/source-health" class="{% if request.path == '/source-health' %}active{% endif %}">Sources</a>
             </div>
         </div>
     </nav>

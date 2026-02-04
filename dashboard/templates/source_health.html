@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Source Health — LinkedIn Content{% endblock %}
+
+{% block content %}
+<h1>Source Health</h1>
+<p class="section-description">Recent source failures and issues from the scanning pipeline.</p>
+
+{% if failures %}
+<div class="failure-list">
+    {% for f in failures %}
+    <div class="failure-card failure-{{ f.failure_type }}">
+        <div class="failure-header">
+            <span class="badge badge-failure-{{ f.failure_type }}">{{ f.failure_type | replace('_', ' ') }}</span>
+            <span class="failure-date">{{ f.recorded_at[:16] if f.recorded_at else '' }}</span>
+        </div>
+
+        <h3 class="failure-source">{{ f.source_name or 'Unknown' }}</h3>
+        <p class="failure-url">
+            <a href="{{ f.source_url }}" target="_blank" rel="noopener">{{ f.source_url }}</a>
+        </p>
+
+        {% if f.error_message %}
+        <p class="failure-message">{{ f.error_message }}</p>
+        {% endif %}
+
+        {% if f.failure_type == 'zero_results' and f.consecutive_zero_count >= 3 %}
+        <p class="failure-warning">This source has returned 0 articles for {{ f.consecutive_zero_count }} consecutive runs.</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <p>No source failures recorded. All sources are healthy.</p>
+</div>
+{% endif %}
+{% endblock %}

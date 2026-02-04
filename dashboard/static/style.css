@@ -265,3 +265,259 @@ details[open] summary { margin-bottom: 0.75rem; }
 }
 
 .toast.show { opacity: 1; }
+
+/* Section description */
+.section-description {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 1.25rem;
+}
+
+/* Rejected Articles */
+.rejected-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.rejected-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.rejected-score {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.rejected-title {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.rejected-title a {
+    color: var(--text);
+    text-decoration: none;
+}
+
+.rejected-title a:hover {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
+.score-breakdown {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+}
+
+.score-chip {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    background: #f1f3f5;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.rejection-reason {
+    font-size: 0.85rem;
+    color: var(--danger);
+    font-style: italic;
+}
+
+/* Source Health / Failures */
+.failure-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.failure-card.failure-timeout { border-left-color: var(--warning); }
+.failure-card.failure-http_error { border-left-color: var(--danger); }
+.failure-card.failure-parse_error { border-left-color: var(--danger); }
+.failure-card.failure-zero_results { border-left-color: #6c757d; }
+
+.failure-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.4rem;
+}
+
+.failure-date {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.failure-source {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.failure-url {
+    font-size: 0.8rem;
+    margin-bottom: 0.4rem;
+    word-break: break-all;
+}
+
+.failure-url a { color: var(--primary); }
+
+.failure-message {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-family: monospace;
+    background: #f1f3f5;
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+    margin-bottom: 0.25rem;
+}
+
+.failure-warning {
+    font-size: 0.85rem;
+    color: var(--warning);
+    font-weight: 600;
+}
+
+.badge-failure-timeout { background: #fff3cd; color: #856404; }
+.badge-failure-http_error { background: #fee2e2; color: #991b1b; }
+.badge-failure-parse_error { background: #fee2e2; color: #991b1b; }
+.badge-failure-zero_results { background: #e5e7eb; color: #374151; }
+
+/* Candidate Selection */
+.candidate-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+    position: sticky;
+    top: 52px;
+    z-index: 50;
+}
+
+.candidate-actions-left {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-generate {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    font-weight: 600;
+}
+.btn-generate:hover:not(:disabled) { background: var(--primary-hover); }
+.btn-generate:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.candidate-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+}
+
+.candidate-select {
+    padding-top: 0.25rem;
+    flex-shrink: 0;
+}
+
+.candidate-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--primary);
+}
+
+.candidate-body { flex: 1; min-width: 0; }
+
+.candidate-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.candidate-score {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-left: auto;
+}
+
+.candidate-title {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.candidate-title a {
+    color: var(--text);
+    text-decoration: none;
+}
+.candidate-title a:hover {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
+.candidate-meta {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.candidate-error {
+    font-size: 0.85rem;
+    color: var(--danger);
+    font-style: italic;
+    margin-bottom: 0.5rem;
+}
+
+.badge-status-candidate { background: #dbeafe; color: #1e40af; }
+.badge-status-generating {
+    background: #fef3c7;
+    color: #92400e;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+.badge-status-generated { background: #d1fae5; color: #065f46; }
+.badge-status-error { background: #fee2e2; color: #991b1b; }
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.generated-preview {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+}
+
+.generated-preview .post-text {
+    margin-bottom: 0.5rem;
+}
+
+@media (max-width: 600px) {
+    .candidate-actions { flex-direction: column; gap: 0.5rem; }
+    .candidate-card { flex-direction: column; }
+}
